@@ -22,7 +22,8 @@ def create_store():
     if "name" not in store_data:
         abort(http_status_code=400, message_flashed="Bad request, Ensure name field include",)
 
-    for store in stores:
+    for store in stores.values():
+        print(store)
         if store_data["name"] == store["name"]:
             abort(http_status_code=400, message="Store already exists",)
 
@@ -73,7 +74,7 @@ def create_item():
     if "store_id" not in item_data or "price" not in item_data or "name" not in item_data:
         abort(http_status_code=400, message="Bad request, price, name, and store_id should be include.",)
 
-    for item in items:
+    for item in items.values():
         if item_data["name"] == item["name"] and item_data["store_id"] == item["store_id"]:
             abort(http_status_code=400, message="Item already exists",)
 
