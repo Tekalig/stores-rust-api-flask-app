@@ -1,4 +1,6 @@
 import uuid
+from pyexpat.errors import messages
+
 from flask import Flask, request
 from flask_smorest import abort
 from db import stores, items
@@ -12,7 +14,7 @@ def get_store():
 @app.post("/store")
 def create_store():
     store_data = request.get_json()
-    store_id = uuid.uuid4.hex
+    store_id = uuid.uuid4()
     store = {**store_data, "id":store_id}
     stores[store_id] = store
     return store, 201
@@ -20,10 +22,17 @@ def create_store():
 @app.post("/item")
 def create_item():
     item_data = request.get_json()
+    if "store_id" not in item_data or "price" not in item_data or "name" not in item_data:
+        abort(http_status_code=400, message="Bad request, price, name, and store_id should be include.")
+
+    for item in items:
+        if item_data["name"] == item["name"] and item_data["store_id"] == item["store_id"]:
+            abort(http_status_code=400, message="Item already exists")
+
     if item_data["store_id"] not in stores:
         abort(http_status_code=404, message="Store isn't Found!")
 
-    item_id = uuid.uuid4.hex
+    item_id = uuid.uuid4()
     item = {**item_data, "id":item_id}
     items[item_id] = item
     return item, 201
