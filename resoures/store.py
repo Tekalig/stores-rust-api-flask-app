@@ -56,7 +56,7 @@ class NewStore(MethodView):
     def post(self):
         store_data = request.get_json()
         if "name" not in store_data:
-            abort(http_status_code=400, message_flashed="Bad request, Ensure name field include", )
+            abort(http_status_code=400, message="Bad request, Ensure name field include", )
 
         for store in stores.values():
             print(store)
