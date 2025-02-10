@@ -4,7 +4,7 @@ from flask_smorest import abort
 from db import stores, items
 app = Flask(__name__)
 
-
+# store endpoints
 @app.get("/stores")
 def get_store():
     return {"stores":list(stores.values())}
@@ -24,6 +24,26 @@ def create_store():
     stores[store_id] = store
     return store, 201
 
+
+@app.get("/store/<string:store_id>")
+def get_specific_store(store_id):
+    try:
+        return stores[store_id]
+    except KeyError:
+        abort(http_status_code=400, message="Store isn't Found!",)
+
+#  Items endpoints
+@app.get("/items")
+def get_items():
+    return {"items":list(items.values())}
+
+@app.get("/item/<string:item_id>")
+def get_specific_item(item_id):
+    try:
+        return items[item_id]
+    except KeyError:
+        abort(http_status_code=400, message="Item isn't Found!",)
+
 @app.post("/item")
 def create_item():
     item_data = request.get_json()
@@ -42,20 +62,11 @@ def create_item():
     items[item_id] = item
     return item, 201
 
-@app.get("/store/<string:store_id>")
-def get_specific_store(store_id):
-    try:
-        return stores[store_id]
-    except KeyError:
-        abort(http_status_code=400, message="Store isn't Found!",)
 
-@app.get("/items")
-def get_items():
-    return {"items":list(items.values())}
-
-@app.get("/item/<string:item_id>")
-def get_specific_item(item_id):
+@app.delete("/item/<string:item_id>")
+def delete_specific_item(item_id):
     try:
-        return items[item_id]
+        del items[item_id]
+        return {"message":"Item deleted successfully"}
     except KeyError:
         abort(http_status_code=400, message="Item isn't Found!",)
