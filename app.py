@@ -39,3 +39,9 @@ def get_specific_store(name):
             return store
     return {"message": "Store isn't Found!"}, 404
 
+@app.get("/store/<string:name>/items")
+def get_specific_store_items(name):
+    for store in stores:
+        if store["name"] == name:
+            return store["items"]
+    return {"message": "Store isn't Found!"}, 404
