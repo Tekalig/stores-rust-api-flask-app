@@ -1,6 +1,6 @@
 import uuid
-
 from flask import Flask, request
+from flask_smorest import abort
 from db import stores, items
 app = Flask(__name__)
 
@@ -18,10 +18,10 @@ def create_store():
     return store, 201
 
 @app.post("/item")
-def add_item():
+def create_item():
     item_data = request.get_json()
     if item_data["store_id"] not in stores:
-        return {"message": "Store isn't Found!"}, 404
+        abort(http_status_code=404, message="Store isn't Found!")
 
     item_id = uuid.uuid4.hex
     item = {**item_data, "id":item_id}
@@ -33,7 +33,7 @@ def get_specific_store(store_id):
     try:
         return stores[store_id]
     except KeyError:
-        return {"message": "Store isn't Found!"}, 404
+        abort(http_status_code=404, message="Store isn't Found!")
 
 @app.get("/items")
 def get_items():
@@ -44,4 +44,4 @@ def get_specific_item(item_id):
     try:
         return items[item_id]
     except KeyError:
-        return {"message": "Store isn't Found!"}, 404
+        abort(http_status_code=404, message="Item isn't Found!")
