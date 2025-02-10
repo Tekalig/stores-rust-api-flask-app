@@ -17,7 +17,7 @@ class ItemList(MethodView):
 
 
 # item route with the same endpoints but different method
-@blp.route("item/<string:item_id>")
+@blp.route("/item/<string:item_id>")
 class Item(MethodView):
     # get specific item by item id
     def get(self, item_id):
