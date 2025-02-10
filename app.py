@@ -1,110 +1,25 @@
-import uuid
-from flask import Flask, request, message_flashed
-from flask_smorest import abort
-from db import stores, items
+from flask import Flask
+from flask_smorest import Api
+
+# import custom blueprint
+from resoures.item import blp as ItemBlueprint
+from resoures.store import blp as StoreBlueprint
+
+# initialize flask app
 app = Flask(__name__)
 
-# store endpoints
-@app.get("/stores")
-def get_store():
-    return {"stores":list(stores.values())}
+# config the flask app
+app.config["PROPAGATE_EXCEPTIONS"] = True
+app.config["API_TITLE"] = "stores rust api"
+app.config["API_VERSION"] = "v1"
+app.config["OPENAPI_VERSION"] = "3.0.3"
+app.config["OPENAPI_URL_PREFIX"] = "/"
+app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
+app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
 
-@app.get("/store/<string:store_id>")
-def get_specific_store(store_id):
-    try:
-        return stores[store_id]
-    except KeyError:
-        abort(http_status_code=400, message="Store isn't Found!",)
+# initialize the api
+api = Api(app)
 
-@app.post("/store")
-def create_store():
-    store_data = request.get_json()
-    if "name" not in store_data:
-        abort(http_status_code=400, message_flashed="Bad request, Ensure name field include",)
-
-    for store in stores.values():
-        print(store)
-        if store_data["name"] == store["name"]:
-            abort(http_status_code=400, message="Store already exists",)
-
-    store_id = uuid.uuid4().hex
-    store = {**store_data, "id":store_id}
-    stores[store_id] = store
-    return store, 201
-
-
-@app.put("/store/<string:store_id>")
-def update_specific_store(store_id):
-    store_data = request.get_json()
-    if "name" not in store_data:
-        abort(http_status_code=400, message="Bad request, name should be include.",)
-
-    try:
-        store = stores[store_id]
-        store |= store_data
-
-        return store
-    except KeyError:
-        abort(http_status_code=400, message="Store isn't Found!", )
-
-
-@app.delete("/store/<string:store_id>")
-def delete_specific_store(store_id):
-    try:
-        del stores[store_id]
-        return {"message":"Store deleted successfully"}
-    except KeyError:
-        abort(http_status_code=400, message="Store isn't Found!",)
-
- # Items endpoints
-@app.get("/items")
-def get_items():
-    return {"items":list(items.values())}
-
-@app.get("/item/<string:item_id>")
-def get_specific_item(item_id):
-    try:
-        return items[item_id]
-    except KeyError:
-        abort(http_status_code=400, message="Item isn't Found!",)
-
-@app.post("/item")
-def create_item():
-    item_data = request.get_json()
-    if "store_id" not in item_data or "price" not in item_data or "name" not in item_data:
-        abort(http_status_code=400, message="Bad request, price, name, and store_id should be include.",)
-
-    for item in items.values():
-        if item_data["name"] == item["name"] and item_data["store_id"] == item["store_id"]:
-            abort(http_status_code=400, message="Item already exists",)
-
-    if item_data["store_id"] not in stores:
-        abort(http_status_code=400, message="Store isn't Found!",)
-
-    item_id = uuid.uuid4().hex
-    item = {**item_data, "id":item_id}
-    items[item_id] = item
-    return item, 201
-
-@app.put("/item/<string:item_id>")
-def update_specific_item(item_id):
-    item_data = request.get_json()
-    if "price" not in item_data or "name" not in item_data:
-        abort(http_status_code=400, message="Bad request, price,and name should be include.",)
-
-    try:
-        item = items[item_id]
-        item |= item_data
-
-        return item
-    except KeyError:
-        abort(http_status_code=400, message="Item isn't Found!", )
-
-
-@app.delete("/item/<string:item_id>")
-def delete_specific_item(item_id):
-    try:
-        del items[item_id]
-        return {"message":"Item deleted successfully"}
-    except KeyError:
-        abort(http_status_code=400, message="Item isn't Found!",)
+# use the route
+api.register_blueprint(ItemBlueprint)
+api.register_blueprint(StoreBlueprint)
