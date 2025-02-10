@@ -13,14 +13,16 @@ blp = Blueprint("item", __name__, description="Operation on items")
 @blp.route("/items")
 class ItemList(MethodView):
     # get all items
+    @blp.response(200, ItemSchema(many=True))
     def get(self):
-        return {"items": list(items.values())}
+        return items.values()
 
 
 # item route with the same endpoints but different method
 @blp.route("/item/<string:item_id>")
 class Item(MethodView):
     # get specific item by item id
+    @blp.response(200, ItemSchema)
     def get(self, item_id):
         try:
             return items[item_id]
@@ -29,6 +31,7 @@ class Item(MethodView):
 
     # update specific item by item id
     @blp.arguments(ItemUpdateSchema)
+    @blp.response(200, ItemSchema)
     def put(self, item_data, item_id):
         try:
             item = items[item_id]
@@ -38,10 +41,12 @@ class Item(MethodView):
             abort(http_status_code=400, message="Item isn't Found!", )
 
     # delete specific item by item id
+    @blp.response(200, ItemSchema)
     def delete(self, item_id):
         try:
+            del_item = items[item_id]
             del items[item_id]
-            return {"message": "Item deleted successfully"}
+            return del_item
         except KeyError:
             abort(http_status_code=400, message="Item isn't Found!", )
 
@@ -51,6 +56,7 @@ class Item(MethodView):
 class NewItem(MethodView):
     # add new item to specific store
     @blp.arguments(ItemSchema)
+    @blp.response(201, ItemSchema)
     def post(self, item_data):
         if item_data["store_id"] not in stores:
             abort(http_status_code=400, message="Store isn't Found!", )
