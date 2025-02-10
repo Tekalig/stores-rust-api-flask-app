@@ -4,6 +4,7 @@ from flask.views import MethodView
 from flask_smorest import abort, Blueprint
 
 from db import stores
+from schemas import StoreSchema, StoreUpdateSchema
 
 blp = Blueprint("store", __name__, description="Operation on stores")
 
@@ -35,11 +36,8 @@ class Stores(MethodView):
             abort(http_status_code=400, message="Store isn't Found!", )
 
     # update specific store by store id
-    def put(self, store_id):
-        store_data = request.get_json()
-        if "name" not in store_data:
-            abort(http_status_code=400, message="Bad request, name should be include.", )
-
+    @blp.arguments(StoreUpdateSchema)
+    def put(self, store_data, store_id):
         try:
             store = stores[store_id]
             store |= store_data
@@ -53,13 +51,9 @@ class Stores(MethodView):
 @blp.route("/store")
 class NewStore(MethodView):
     # add new store
-    def post(self):
-        store_data = request.get_json()
-        if "name" not in store_data:
-            abort(http_status_code=400, message="Bad request, Ensure name field include", )
-
+    @blp.arguments(StoreSchema)
+    def post(self, store_data):
         for store in stores.values():
-            print(store)
             if store_data["name"] == store["name"]:
                 abort(http_status_code=400, message="Store already exists", )
 
