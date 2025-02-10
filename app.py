@@ -9,6 +9,13 @@ app = Flask(__name__)
 def get_store():
     return {"stores":list(stores.values())}
 
+@app.get("/store/<string:store_id>")
+def get_specific_store(store_id):
+    try:
+        return stores[store_id]
+    except KeyError:
+        abort(http_status_code=400, message="Store isn't Found!",)
+
 @app.post("/store")
 def create_store():
     store_data = request.get_json()
@@ -25,14 +32,30 @@ def create_store():
     return store, 201
 
 
-@app.get("/store/<string:store_id>")
-def get_specific_store(store_id):
+@app.put("/store/<string:store_id>")
+def update_specific_store(store_id):
+    store_data = request.get_json()
+    if "name" not in store_data:
+        abort(http_status_code=400, message="Bad request, name should be include.",)
+
     try:
-        return stores[store_id]
+        store = stores[store_id]
+        store |= store_data
+
+        return store
+    except KeyError:
+        abort(http_status_code=400, message="Store isn't Found!", )
+
+
+@app.delete("/store/<string:store_id>")
+def delete_specific_store(store_id):
+    try:
+        del stores[store_id]
+        return {"message":"Store deleted successfully"}
     except KeyError:
         abort(http_status_code=400, message="Store isn't Found!",)
 
-#  Items endpoints
+ # Items endpoints
 @app.get("/items")
 def get_items():
     return {"items":list(items.values())}
@@ -61,6 +84,20 @@ def create_item():
     item = {**item_data, "id":item_id}
     items[item_id] = item
     return item, 201
+
+@app.put("/item/<string:item_id>")
+def update_specific_item(item_id):
+    item_data = request.get_json()
+    if "price" not in item_data or "name" not in item_data:
+        abort(http_status_code=400, message="Bad request, price,and name should be include.",)
+
+    try:
+        item = items[item_id]
+        item |= item_data
+
+        return item
+    except KeyError:
+        abort(http_status_code=400, message="Item isn't Found!", )
 
 
 @app.delete("/item/<string:item_id>")
