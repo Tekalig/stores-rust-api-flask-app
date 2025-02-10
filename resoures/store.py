@@ -7,7 +7,16 @@ from db import stores
 
 blp = Blueprint("store", __name__, description="Operation on stores")
 
-# store route with the same endpoints
+
+# retrieve all stores
+@blp.route("/stores")
+class StoreList(MethodView):
+    # get all stores
+    def get(self):
+        return {"stores": list(stores.values())}
+
+
+# store route with the same endpoints but different method
 @blp.route("/store/<string:store_id>")
 class Stores(MethodView):
     # get specific store by store id
@@ -39,12 +48,6 @@ class Stores(MethodView):
         except KeyError:
             abort(http_status_code=400, message="Store isn't Found!", )
 
-# retrieve all stores
-@blp.route("/stores")
-class StoreList(MethodView):
-    # get all stores
-    def get(self):
-        return {"stores": list(stores.values())}
 
 # Create a new store
 @blp.route("/store")
