@@ -4,6 +4,7 @@ from flask.views import MethodView
 from flask_smorest import abort, Blueprint
 
 from db import items, stores
+from schemas import ItemSchema, ItemUpdateSchema
 
 blp = Blueprint("item", __name__, description="Operation on items")
 
@@ -27,15 +28,11 @@ class Item(MethodView):
             abort(http_status_code=400, message="Item isn't Found!", )
 
     # update specific item by item id
-    def put(self, item_id):
-        item_data = request.get_json()
-        if "price" not in item_data or "name" not in item_data:
-            abort(http_status_code=400, message="Bad request, price,and name should be include.", )
-
+    @blp.arguments(ItemUpdateSchema)
+    def put(self, item_data, item_id):
         try:
             item = items[item_id]
             item |= item_data
-
             return item
         except KeyError:
             abort(http_status_code=400, message="Item isn't Found!", )
@@ -53,17 +50,14 @@ class Item(MethodView):
 @blp.route("/item")
 class NewItem(MethodView):
     # add new item to specific store
-    def post(self):
-        item_data = request.get_json()
-        if "store_id" not in item_data or "price" not in item_data or "name" not in item_data:
-            abort(http_status_code=400, message="Bad request, price, name, and store_id should be include.", )
+    @blp.arguments(ItemSchema)
+    def post(self, item_data):
+        if item_data["store_id"] not in stores:
+            abort(http_status_code=400, message="Store isn't Found!", )
 
         for item in items.values():
             if item_data["name"] == item["name"] and item_data["store_id"] == item["store_id"]:
                 abort(http_status_code=400, message="Item already exists", )
-
-        if item_data["store_id"] not in stores:
-            abort(http_status_code=400, message="Store isn't Found!", )
 
         item_id = uuid.uuid4().hex
         item = {**item_data, "id": item_id}
