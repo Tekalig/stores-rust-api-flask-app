@@ -4,3 +4,4 @@ flask_smorest
 python_dotenv
 sqlalchemy
 flask-sqlalchemy
+psycopg2
