@@ -50,7 +50,7 @@ class Item(MethodView):
     @blp.response(200, ItemSchema)
     def delete(self, item_id):
         item = ItemModel.query.get_or_404(item_id)
-        print(item)
+
         deleted_item = item
         db.session.delete(item)
         db.session.commit()
