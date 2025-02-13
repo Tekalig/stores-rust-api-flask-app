@@ -3,4 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.12 (simple_flask_api)" />
   </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (stores_rust_api_flask_app)" project-jdk-type="Python SDK" />
 </project>
