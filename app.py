@@ -9,6 +9,7 @@ from config.db import db
 # import custom blueprint
 from controllers.item import blp as ItemBlueprint
 from controllers.store import blp as StoreBlueprint
+from controllers.tag import blp as TagBlueprint
 
 #  Load environmental variable from .env file
 load_dotenv()
@@ -52,5 +53,6 @@ def create_app():
     # use the route
     api.register_blueprint(ItemBlueprint)
     api.register_blueprint(StoreBlueprint)
+    api.register_blueprint(TagBlueprint)
 
     return app
