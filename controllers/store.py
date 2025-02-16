@@ -50,10 +50,13 @@ class Stores(MethodView):
     @blp.response(200, StoreSchema)
     def delete(self, store_id):
         store = StoreModel.query.get_or_404(store_id)
-        print(store)
+
         deleted_store = store
-        db.session.delete(store)
-        db.session.commit()
+        try:
+            db.session.delete(store)
+            db.session.commit()
+        except SQLAlchemyError as e:
+            abort(400, message=str(e))
 
         return {"message":"Store deleted successfully", "deleted_store":deleted_store}
 
