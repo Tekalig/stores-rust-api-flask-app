@@ -5,11 +5,10 @@ from flask_smorest import Api
 from dotenv import load_dotenv
 
 from config.db import db
-import models
 
 # import custom blueprint
-from resoures.item import blp as ItemBlueprint
-from resoures.store import blp as StoreBlueprint
+from controllers.item import blp as ItemBlueprint
+from controllers.store import blp as StoreBlueprint
 
 #  Load environmental variable from .env file
 load_dotenv()
